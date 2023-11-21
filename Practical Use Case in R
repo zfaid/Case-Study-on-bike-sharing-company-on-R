@@ -1,0 +1,37 @@
+##Case Study: How does a bike-share navigate speedy success?##
+##Goal: Design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ, why casual riders would buy a membership, and how digital media could affect their marketing tactics. 
+
+# Download packages and libraries 
+install.packages("tidyverse")
+install.packages("lubridate")
+install.packages("ggplot")
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+
+getwd()
+setwd() 
+
+# Import Data  
+q1_2020 <- read.csv("202004-divvy-tripdata.csv")
+colnames(q1_2020)
+
+summary(q1_2020)
+
+# Merge the four labels - subscriber, member, customer, casual - into two categories  
+q1_2020 <- mutate(q1_2020,member_casual = recode(member_casual ,"Subscriber" = "member","Customer" = "casual"))
+table(q1_2020$member_casual)
+
+# Create new variable called ride_length, taking difference of start_at from ended_at 
+q1_2020$ride_length <- difftime(q1_2020$ended_at,q1_2020$started_at)
+
+# Convert ride_length to numeric form 
+q1_2020 <- mutate(q1_2020, ride_length = as.numeric(ride_length))
+
+q1_2020_v2 <- q1_2020[!(q1_2020$start_station_name == "HQ QR" | q1_2020$ride_length<0),] # renmoving entries when bikes were taken out of docks and checked for quality by Divvy or ride_length was negative
+summary(q1_2020_v2$ride_length)
+
+# Let's visualize the length of rides by rider type
+ggplot(data=q1_2020_v2)+geom_point(mapping=aes(y = ride_length, x = member_casual)) 
+
+
